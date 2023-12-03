@@ -4,7 +4,7 @@ import { Button, Modal, Form } from 'react-bootstrap';
 const AddCandidate = (props) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', age: '', gender: '', agenda: '' });
-  let {contractInstance, account} = props;
+  let {contractInstance, account, setRefreshKey} = props;
 //   console.log("Props in add candidate>", props);
 
   const addCandidate = () => {
@@ -28,10 +28,9 @@ const AddCandidate = (props) => {
     console.log('Submitting details:', formData);
     let {name, age, gender, agenda} = formData;
     try{
-        console.log(contractInstance.methods);
-        // let owner = await contractInstance.methods.owner().send({"from": account, "gas": 30000000});
-        let response = await contractInstance.methods.addCandidate(name, age, gender, agenda).send({"from": account, "gas": 3000000 });
-        console.log("response>>", response);
+        let response = await contractInstance.methods.addCandidate(name, age, gender, agenda).send({"from": account, "gas": '1000000' });
+        console.log("responsefrom addCandidate()>>", response);
+        setRefreshKey(oldKey =>oldKey+1);
     }catch(err){
         console.log("couldnt add candidate>>", err);
     }
@@ -49,7 +48,6 @@ const AddCandidate = (props) => {
           <Modal.Title>Add New Candidate</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {/* Form for user input */}
           <Form>
             <Form.Group controlId="formName">
               <Form.Label>Name</Form.Label>

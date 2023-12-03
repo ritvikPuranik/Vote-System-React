@@ -1,7 +1,31 @@
-import React from "react";
+import React ,{useState, useEffect} from "react";
+import Web3 from 'web3';
 
-const ElectionTable = () =>{
-    return (
+const ElectionTable = (props) =>{
+  let [candidateData, setCandidateData] = useState([]);
+
+  const toNumber = (val) =>{ return Web3.utils.toNumber(val)}
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let candidatesCount = await props.contractInstance.methods.candidatesCount().call();
+      candidatesCount = toNumber(candidatesCount);
+      let allData = [];
+      for(let i=1; i<=candidatesCount; i++){
+        let data = await props.contractInstance.methods.candidates(i).call();
+        allData.push(data);
+
+      }
+      setCandidateData(allData);
+      }
+    
+    // Call the function
+    fetchData();
+  }, [props.refreshKey]);
+
+
+
+  return (
     <div className="container" style={{"width": "650px"}}>
     <div className="row">
       <div className="col-lg-12">
@@ -9,19 +33,30 @@ const ElectionTable = () =>{
         <hr/>
         <br/>
         <div id="content" >
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Age, Gender</th>
-                <th scope="col">Agenda</th>
-                <th scope="col">Votes</th>
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Age, Gender</th>
+              <th scope="col">Agenda</th>
+              <th scope="col">Votes</th>
+            </tr>
+          </thead>
+
+          <tbody id="candidatesResults">
+            {candidateData.map((item) => (
+              <tr key={item.id}>
+                <th scope="row">{toNumber(item.id)}</th>
+                <td>{item.name}</td>
+                <td>{`${toNumber(item.age)}, ${item.gender}`}</td>
+                <td>{item.agenda}</td>
+                <td>{toNumber(item.voteCount)}</td>
               </tr>
-            </thead>
-            <tbody id="candidatesResults">
-            </tbody>
-          </table>
+            ))}
+          </tbody>
+        </table>
+
           <hr/>
           <p id="accountAddress" className="text-center"></p>
         </div>
