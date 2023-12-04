@@ -2,7 +2,6 @@ import React ,{useState, useEffect} from "react";
 import Web3 from 'web3';
 
 const ElectionTable = (props) =>{
-  let [candidateData, setCandidateData] = useState([]);
 
   const toNumber = (val) =>{ return Web3.utils.toNumber(val)}
 
@@ -13,15 +12,18 @@ const ElectionTable = (props) =>{
       let allData = [];
       for(let i=1; i<=candidatesCount; i++){
         let data = await props.contractInstance.methods.candidates(i).call();
+        data.id = toNumber(data.id);
+        data.age = toNumber(data.age);
+        data.voteCount = toNumber(data.voteCount);
         allData.push(data);
 
       }
-      setCandidateData(allData);
+      props.setCandidateData(allData);
       }
     
     // Call the function
     fetchData();
-  }, [props.refreshKey]);
+  });
 
 
 
@@ -45,7 +47,7 @@ const ElectionTable = (props) =>{
           </thead>
 
           <tbody id="candidatesResults">
-            {candidateData.map((item) => (
+            {props.candidateData.map((item) => (
               <tr key={item.id}>
                 <th scope="row">{toNumber(item.id)}</th>
                 <td>{item.name}</td>

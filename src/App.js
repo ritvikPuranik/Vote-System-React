@@ -6,22 +6,20 @@ import contractDetails from './contractDetails';
 import ElectionTable from './components/ElectionTable';
 import ChooseCandidate from './components/ChooseCandidate';
 import AddCandidate from './components/AddCandidate';
+import FundCampaign from './components/FundCampaign';
 
 function App() {
   let [account, setAccount] = useState("");
   let [contractInstance, setContractInstance] = useState(null);
   let [owner, setOwner] = useState(false);
   let [refreshKey, setRefreshKey] = useState(0);
+  let [candidateData, setCandidateData] = useState([]);
+  let [canVote, setCanVote] = useState(false); //This hides the vote option if the user has either already voted or has no funds added
 
   const isOwner = async (updatedAccount) => {
     try {
       const owner = await contractInstance.methods.owner().call();
-      console.log("owner>>", owner);
-      console.log("isOwner>>", updatedAccount === owner.toLowerCase());
       setOwner(updatedAccount === owner.toLowerCase());
-      
-      // let response = await contractInstance.methods.addCandidate("ritvik puranik", 24, "M", "Youth Seva").send({"from": owner, gas: '1000000'});
-      // console.log("response for send>>", response);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -40,19 +38,33 @@ function App() {
     setAccount(initialAccount);
     await isOwner(initialAccount);
 
-
     window.ethereum.on('accountsChanged', async function (accounts) {
       const updatedAccount = accounts[0];
       setAccount(updatedAccount);
       console.log("account now>>", updatedAccount);
       await isOwner(updatedAccount);
-    });
-    
+      setRefreshKey(oldKey=>oldKey+1);
+    });    
   }
+
+  const canUserVote = async() =>{
+    try{
+      let voter = await contractInstance.methods.voters(account).call();
+      let {hasVoted, funds} = voter;
+      console.log("hasUSerVoted>", hasVoted);
+      funds = Web3.utils.fromWei(funds, 'ether');
+      setCanVote(!hasVoted && funds>0);
+
+    }catch(err){
+      console.log("err while checking hasVoted>", err);
+    }
+  }
+
 
   useEffect(() => {
     const fetchData = async () => {
       await loadBlockChain();
+      await canUserVote();
     };
 
     fetchData();
@@ -61,9 +73,10 @@ function App() {
   const render = () => {
     return (
       <div className="container">
-        <ElectionTable contractInstance={contractInstance} refreshKey={refreshKey}/>
-        <ChooseCandidate contractInstance={contractInstance}/>
+        <ElectionTable contractInstance={contractInstance} refreshKey={refreshKey} setCandidateData={setCandidateData} candidateData={candidateData}/>
+        {canVote && <ChooseCandidate contractInstance={contractInstance} candidateData={candidateData} account={account}/>}
         {owner && <AddCandidate contractInstance={contractInstance} account={account} setRefreshKey={setRefreshKey}/>}
+        <FundCampaign contractInstance={contractInstance} account={account} setRefreshKey={setRefreshKey}/>
         <p>Your Account: {account}</p>
       </div>
     );
