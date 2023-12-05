@@ -11,6 +11,7 @@ const ChooseCandidate = (props) =>{
             console.log("contractinstacne>", props.contractInstance);
             let response = await props.contractInstance.methods.vote(candidateId).send({"from": props.account, "gas": '1000000' });
             console.log("respnse from selecting candidate>", response);
+            props.setRefreshKey(oldKey=>oldKey+1);
         }catch(err){
             console.log("err>", err);
         }

@@ -501,7 +501,7 @@ let contractDetails = {
           "type": "function"
         }
       ],
-    "contractAddress": "0xE2AFF6dc45FB602294B1D013bFB53e27FFF6248a"
+    "contractAddress": "0xB5C7802FEDEf2C5E3608d8fe599dA5c374dCb717"
 }
 
 export default contractDetails;

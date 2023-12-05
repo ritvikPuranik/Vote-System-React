@@ -41,7 +41,7 @@ const FundCampaign = (props) =>{
         
               <Modal show={isModalOpen} onHide={closeModal}>
                 <Modal.Header closeButton>
-                  <Modal.Title>Add Funds to enhance your influence</Modal.Title>
+                  <Modal.Title> Add Funds to enhance your influence</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                   <Form>
@@ -66,7 +66,7 @@ const FundCampaign = (props) =>{
                   </Button>
                 </Modal.Footer>
               </Modal>
-              <p style={{ fontSize: 'small', marginTop: '5px', userSelect: 'none' }}>Adding funds will increase the influence of your vote. However, everyone can vote only once. </p>
+              <p style={{ fontSize: 'small', marginTop: '5px', userSelect: 'none' }}><span><b>Note:</b></span> Adding funds will increase the influence of your vote. However, everyone can vote only once. </p>
             </div>
     );
 }

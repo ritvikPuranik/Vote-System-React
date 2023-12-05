@@ -58,9 +58,6 @@ const ElectionTable = (props) =>{
             ))}
           </tbody>
         </table>
-
-          <hr/>
-          <p id="accountAddress" className="text-center"></p>
         </div>
       </div>
     </div>

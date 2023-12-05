@@ -37,10 +37,19 @@ const AddCandidate = (props) => {
 
   }
 
+  const calculateResults = async() =>{
+    console.log("clicked results");
+  }
+
   return (
     <div>
-      <Button onClick={addCandidate} id="add-candidate" variant="primary">
+      <h3>Owner Actions -</h3>
+      <Button onClick={addCandidate} id="add-candidate" variant="outline-info">
         Add New Candidate
+      </Button>
+      <br />
+      <Button onClick={calculateResults} id="calculate-results" variant="outline-success">
+        Calculate Results
       </Button>
 
       <Modal show={isModalOpen} onHide={closeModal}>
