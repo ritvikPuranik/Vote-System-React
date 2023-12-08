@@ -22,9 +22,9 @@ const ChooseCandidate = (props) =>{
     }
 
     return (
-        <form onSubmit={submitCandidate}>
+      <form onSubmit={submitCandidate}>
         <div className="form-group">
-          <label htmlFor="candidatesSelect">Select candidateId</label>
+          <label htmlFor="candidatesSelect">Select Candidate ID</label>
           <select
             className="form-control"
             id="candidatesSelect"

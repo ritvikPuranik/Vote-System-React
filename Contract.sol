@@ -1,6 +1,7 @@
 // // SPDX-License-Identifier: MIT
 // pragma solidity >=0.4.22 <0.9.0;
 // import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+// import "hardhat/console.sol";
 
 
 // contract Election is ERC20 {
@@ -15,6 +16,7 @@
 //     }
 
 //     struct Voter {
+//         uint votedFor; //Candidate ID goes here
 //         uint funds; 
 //         bool hasVoted;
 //     }
@@ -25,14 +27,20 @@
 //     event fundsTransferred (
 //         uint indexed _amount
 //     );
+//     event resultsReady (
+//         uint[] _results
+//     );
 
 //     // Read/write candidates
 //     mapping(uint => Candidate) public candidates;
 //     mapping(address => Voter) public voters;
+//     mapping(uint => address) public voterAddress;
+//     mapping(uint => uint) public weightage;
 
 //     // Store Candidates Count
 //     uint public candidatesCount;
 //     address public owner;
+//     uint public voterCount;
 
 //     constructor() ERC20("Vote-Coin", "VC"){
 //         owner = msg.sender;
@@ -52,26 +60,22 @@
 //         });
 //     }
 
-//     function addFunds (uint _amount) public payable{
-//         _mint(msg.sender, _amount * (10 ** decimals()));
-//         voters[msg.sender].funds += _amount * (10 ** decimals());
-//         emit fundsTransferred(_amount);
+//     function addFunds () public payable{
+//         require(msg.value > 0, "Amount can't be zero!");
+//         _mint(msg.sender, (msg.value) * (10 ** decimals()));
+//         voters[msg.sender].funds += (msg.value) * (10 ** decimals());
+//         voterCount++; //Once they add funds they become a voter
+//         voterAddress[voterCount] = msg.sender;
+//         console.log("total SC funds now>", address(this).balance);
+//         emit fundsTransferred(msg.value);
+
 //     }
 
 //     function getBalanceVC() public view returns (uint){
 //         return voters[msg.sender].funds;
 //     }
 
-//     // function withdraw () public payable{
-
-//     //     _burn(msg.sender, msg.value * (10 ** decimals()));
-//     //     voters[msg.sender].funds -= msg.value * (10 ** decimals());
-
-//     //     emit fundsTransferred(msg.value);
-//     // }
-
 //     function vote (uint _candidateId) public {
-//         // require that they haven't voted before
 //         require(!voters[msg.sender].hasVoted, "Current voter has already voted!");
 //         require(voters[msg.sender].funds > 0, "Current voter has no funds, please fund the campaign!");
 
@@ -80,8 +84,37 @@
 
 //         voters[msg.sender].hasVoted = true;
 //         candidates[_candidateId].voteCount ++;
+
+//         voters[msg.sender].votedFor = _candidateId;
         
 //         // trigger voted event
 //         emit voteComplete(_candidateId);
+//     }
+
+//     function computeElectionResult() public returns (uint[] memory) {
+//         // mapping(uint => uint) storage localWeightage = weightage;
+//         uint contractFunds = address(this).balance;
+//         console.log("contractFunds>", contractFunds);
+//         for(uint i=1; i<=voterCount; i++){
+//             address addr = voterAddress[i];
+//             console.log("addr>", addr);
+//             uint votedFor = voters[addr].votedFor;
+//             console.log("votedFor>>", votedFor);
+//             uint funds = voters[addr].funds;
+//             console.log("funds>", funds);
+//             uint weight = (funds*1000)/(contractFunds * (10 ** decimals()));
+//             console.log("weight>", weight);
+//             weightage[votedFor] += weight;
+//             console.log("weightage[votedFor]>>", weightage[votedFor]);
+//         }
+
+//         uint[] memory ret = new uint[](candidatesCount);
+//         for (uint i = 1; i <= candidatesCount; i++) {
+//             ret[i-1] = weightage[i];
+//         }
+//         console.log("worked so far>>", ret[0]);
+//         emit resultsReady(ret);
+//         return ret;
+
 //     }
 // }

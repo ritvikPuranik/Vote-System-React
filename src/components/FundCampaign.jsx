@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Modal, Form } from 'react-bootstrap';
 
 const FundCampaign = (props) =>{
@@ -18,7 +18,7 @@ const FundCampaign = (props) =>{
     
     const submitDetails = async() =>{
         try{
-            let addFunds = await props.contractInstance.methods.addFunds(formData.amount).send({"from": props.account, "gas": '1000000' });
+            let addFunds = await props.contractInstance.methods.addFunds().send({"from": props.account, "value": formData.amount, "gas": '1000000' });
             console.log("funds added successfully>", addFunds);
             setModalOpen(false);
             props.setRefreshKey(oldKey=>oldKey+1);

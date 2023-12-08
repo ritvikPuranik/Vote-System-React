@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Modal, Form } from 'react-bootstrap';
 
 const AddCandidate = (props) => {
@@ -6,6 +6,7 @@ const AddCandidate = (props) => {
   const [formData, setFormData] = useState({ name: '', age: '', gender: '', agenda: '' });
   let {contractInstance, account, setRefreshKey} = props;
 //   console.log("Props in add candidate>", props);
+  const [eventData, setEventData] = useState([]);
 
   const addCandidate = () => {
     // Open the modal when the button is clicked
@@ -38,8 +39,36 @@ const AddCandidate = (props) => {
   }
 
   const calculateResults = async() =>{
-    console.log("clicked results");
+    try{
+      let response = await contractInstance.methods.computeElectionResult().send({"from": account, "gas": '1000000' });
+      console.log("response from calculateREsults>", response);
+
+    }catch(err){
+      console.error("Failed to compute results>>", err);
+      
+    }
   }
+
+  useEffect(() => {
+    const listenToEvent = async () => {
+      try {
+        // Subscribe to the event
+        console.log("entered fundsTransferred event>");
+        contractInstance.events.allEvents({}, (error, result) => {
+          if (!error) {
+            console.log('Event data:', result.returnValues);
+            setEventData((prevData) => [...prevData, result.returnValues]);
+          } else {
+            console.error('Error listening to event:', error);
+          }
+        });
+      } catch (error) {
+        console.error('Error setting up event listener:', error);
+      }
+    };
+
+    listenToEvent();
+  }, []);
 
   return (
     <div>

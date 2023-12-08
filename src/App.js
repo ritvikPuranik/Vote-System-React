@@ -53,6 +53,7 @@ function App() {
   const canUserVote = async() =>{
     try{
       let voter = await contractInstance.methods.voters(account).call();
+      // console.log("voter details>", voter);
       let {hasVoted, funds} = voter;
       setUserFunds(Web3.utils.fromWei(funds, 'ether'));
       console.log("canVote>", !hasVoted && userFunds>0);
@@ -71,6 +72,15 @@ function App() {
 
     fetchData();
   }, [refreshKey]);
+
+  useEffect(() => {
+    const listenToEvent = async () => {
+      // console.log("listening to events...>", contractInstance.events);
+      contractInstance.events.allEvents({}, function(error, event){ console.log("1.", event); })
+    };
+
+    listenToEvent();
+  });
 
   const render = () => {
     return (

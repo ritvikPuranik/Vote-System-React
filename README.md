@@ -4,7 +4,6 @@ This is a simple dApp for conducting elections, with a twist. Each account linke
 The Owner of the smart contract has the ability to add new candidates, who then are displayed on the leaderboard along with their details. The owner also holds the authority to compute the election results at will.
 Currently the contract must be deployed and the address pasted in the contractDetails.js file, which is then used to launch a smart contract instance.
 
---
 ## Features
 - ERC20 compliant
 - Owner of SC can add candidates and compute election results
