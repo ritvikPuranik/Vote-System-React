@@ -8,7 +8,6 @@ const ChooseCandidate = (props) =>{
         console.log("vote completee candidateData>",candidateId);
         try{
             console.log("account senfing the transaction>>", props.account);
-            console.log("contractinstacne>", props.contractInstance);
             let response = await props.contractInstance.methods.vote(candidateId).send({"from": props.account, "gas": '1000000' });
             console.log("respnse from selecting candidate>", response);
             props.setRefreshKey(oldKey=>oldKey+1);

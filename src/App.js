@@ -28,13 +28,19 @@ function App() {
     }
   };
 
-
   const loadBlockChain = async () => {
     let { abi, contractAddress } = contractDetails;
     let web3 = new Web3('http://127.0.0.1:7545');
-    setContractInstance(new web3.eth.Contract(abi, contractAddress));
-    console.log("ContractInstance>", contractInstance);
-
+    let instance = await new web3.eth.Contract(abi, contractAddress);
+    console.log("ContractInstance instantiated>", instance);
+    if(instance){
+      setContractInstance(instance);
+    }else{
+      instance = await new web3.eth.Contract(abi, contractAddress);
+      console.log("ContractInstance instantiated second attempt>", instance);
+      setContractInstance(instance);
+    }
+    
     await window.ethereum.enable();
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const initialAccount = accounts[0];
@@ -72,15 +78,6 @@ function App() {
 
     fetchData();
   }, [refreshKey]);
-
-  useEffect(() => {
-    const listenToEvent = async () => {
-      // console.log("listening to events...>", contractInstance.events);
-      contractInstance.events.allEvents({}, function(error, event){ console.log("1.", event); })
-    };
-
-    listenToEvent();
-  });
 
   const render = () => {
     return (

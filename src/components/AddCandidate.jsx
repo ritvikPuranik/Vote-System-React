@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Modal, Form } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Button, Modal, Form, Table } from 'react-bootstrap';
+import Web3 from 'web3';
 
 const AddCandidate = (props) => {
   const [isModalOpen, setModalOpen] = useState(false);
+  const [resultsModal, setResultsModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', age: '', gender: '', agenda: '' });
+  const [percentages, setPercentages] = useState([]);
   let {contractInstance, account, setRefreshKey} = props;
-//   console.log("Props in add candidate>", props);
-  const [eventData, setEventData] = useState([]);
 
   const addCandidate = () => {
     // Open the modal when the button is clicked
@@ -40,35 +41,34 @@ const AddCandidate = (props) => {
 
   const calculateResults = async() =>{
     try{
+      setPercentages([]);
       let response = await contractInstance.methods.computeElectionResult().send({"from": account, "gas": '1000000' });
-      console.log("response from calculateREsults>", response);
+      let basisPointsArray = response.events.resultsReady.returnValues[0];
+      console.log("response from calculateREsults>", basisPointsArray);
+      let percentagePromise = basisPointsArray.map(async(item, index) => {
+        let candidateName = await contractInstance.methods.candidates(index+1).call({"from": account, "gas": '1000000' });
+        console.log("candidate Name>", candidateName.name);
+        let newValue = Web3.utils.toNumber(item)/10;
 
+        setPercentages(oldValues => {
+          const newValues = [...oldValues, {percentage: newValue, candidateName: candidateName.name}];
+          
+          // Returning the new state object
+          return newValues;
+        });
+      });
+      await Promise.all(percentagePromise);
+      console.log("Percentages>>", percentages);
+      showResultsModal();
+      
     }catch(err){
       console.error("Failed to compute results>>", err);
       
     }
   }
 
-  useEffect(() => {
-    const listenToEvent = async () => {
-      try {
-        // Subscribe to the event
-        console.log("entered fundsTransferred event>");
-        contractInstance.events.allEvents({}, (error, result) => {
-          if (!error) {
-            console.log('Event data:', result.returnValues);
-            setEventData((prevData) => [...prevData, result.returnValues]);
-          } else {
-            console.error('Error listening to event:', error);
-          }
-        });
-      } catch (error) {
-        console.error('Error setting up event listener:', error);
-      }
-    };
-
-    listenToEvent();
-  }, []);
+  const showResultsModal = () => setResultsModal(true);
+  const hideResultsModal = () => setResultsModal(false);
 
   return (
     <div>
@@ -138,6 +138,37 @@ const AddCandidate = (props) => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <Modal show={resultsModal} onHide={hideResultsModal}>
+      <Modal.Header closeButton>
+        <Modal.Title>Election Results</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Candidate #</th>
+              <th>Candidate Name</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {percentages.map((value, index) => (
+              <tr key={index}>
+                <td>{index+1}</td>
+                <td>{value.candidateName}</td>
+                <td>{value.percentage}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={hideResultsModal}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
     </div>
   );
 }
